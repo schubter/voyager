@@ -281,6 +281,7 @@ func (c *controller) generateConfig() error {
 		Limit: &hpi.Limit{
 			Connection: c.Ingress.LimitConnections(),
 		},
+		ExternalAuth: c.getExternalAuth(),
 	}
 
 	if val := c.Ingress.LimitRPM(); val > 0 {
@@ -810,6 +811,22 @@ func (c *controller) generateConfig() error {
 		c.logger.Debugf("Generated haproxy.cfg for Ingress %s/%s", c.Ingress.Namespace, c.Ingress.Name)
 	}
 	return nil
+}
+
+func (c *controller) getExternalAuth() *hpi.ExternalAuth {
+	authBackend := c.Ingress.AuthBackend()
+	authPath := c.Ingress.AuthPath()
+	authSigninString := c.Ingress.AuthSignin()
+
+	if authBackend == "" || authPath == "" || authSigninString == "" {
+		return nil
+	}
+
+	return &hpi.ExternalAuth{
+		AuthBackend: authBackend,
+		AuthPath:    authPath,
+		AuthSignin:  authSigninString,
+	}
 }
 
 func getBasicAuthUsers(userLists map[string]hpi.UserList, sec *core.Secret) ([]string, error) {

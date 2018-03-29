@@ -51,6 +51,7 @@ type SharedInfo struct {
 	MaxConnections        int
 	UseNodePort           bool
 	Limit                 *Limit
+	ExternalAuth          *ExternalAuth
 }
 
 type CORSConfig struct {
@@ -145,6 +146,12 @@ type Backend struct {
 	Sticky           bool
 	StickyCookieName string
 	StickyCookieHash string
+}
+
+type ExternalAuth struct {
+	AuthBackend string
+	AuthPath    string
+	AuthSignin  string
 }
 
 func (be *Backend) canonicalize(hasDuplicate bool, host, port, path string) {
