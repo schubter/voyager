@@ -785,9 +785,9 @@ func TestHealthCheck(t *testing.T) {
 func TestOauth(t *testing.T) {
 	si := &hpi.SharedInfo{
 		ExternalAuth: &hpi.ExternalAuth{
-			AuthBackend: "auth-be",
-			AuthPath:    "/oauth2/auth",
-			AuthSignin:  "http://voyager.appscode.test/oauth2/start",
+			AuthBackend:    "auth-be",
+			AuthPath:       "/oauth2/auth",
+			AuthSigninPath: "/oauth2/start",
 		},
 	}
 	testParsedConfig := hpi.TemplateData{

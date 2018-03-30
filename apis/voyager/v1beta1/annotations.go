@@ -243,9 +243,9 @@ const (
 	RewriteTarget = EngressKey + "/" + "rewrite-target"
 
 	// https://github.com/kubernetes/ingress-nginx/tree/master/docs/examples/external-auth
-	AuthBackend = EngressKey + "/" + "auth-backend"
-	AuthPath    = EngressKey + "/" + "auth-path"
-	AuthSignin  = EngressKey + "/" + "auth-signin"
+	AuthBackend    = EngressKey + "/" + "auth-backend"
+	AuthPath       = EngressKey + "/" + "auth-path"
+	AuthSigninPath = EngressKey + "/" + "auth-signin-path"
 )
 
 var (
@@ -299,7 +299,7 @@ func init() {
 	registerParser(DefaultsOption, meta.GetMap)
 	registerParser(AuthBackend, meta.GetString)
 	registerParser(AuthPath, meta.GetString)
-	registerParser(AuthSignin, meta.GetString)
+	registerParser(AuthSigninPath, meta.GetString)
 }
 
 const (
@@ -703,7 +703,7 @@ func (r Ingress) AuthPath() string {
 	return value.(string)
 }
 
-func (r Ingress) AuthSignin() string {
-	value, _ := get[AuthSignin](r.Annotations)
+func (r Ingress) AuthSigninPath() string {
+	value, _ := get[AuthSigninPath](r.Annotations)
 	return value.(string)
 }

@@ -38,6 +38,7 @@ var (
 )
 
 func init() {
+	// options.OperatorOptions.DockerRegistry = "diptadas"
 	options.OperatorOptions.HAProxyImageTag = "1.8.5-oauth"
 	options.OperatorOptions.ExporterImageTag = "oauth"
 

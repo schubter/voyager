@@ -816,16 +816,16 @@ func (c *controller) generateConfig() error {
 func (c *controller) getExternalAuth() *hpi.ExternalAuth {
 	authBackend := c.Ingress.AuthBackend()
 	authPath := c.Ingress.AuthPath()
-	authSigninString := c.Ingress.AuthSignin()
+	authSigninPath := c.Ingress.AuthSigninPath()
 
-	if authBackend == "" || authPath == "" || authSigninString == "" {
+	if authBackend == "" || authPath == "" || authSigninPath == "" {
 		return nil
 	}
 
 	return &hpi.ExternalAuth{
-		AuthBackend: authBackend,
-		AuthPath:    authPath,
-		AuthSignin:  authSigninString,
+		AuthBackend:    authBackend,
+		AuthPath:       authPath,
+		AuthSigninPath: authSigninPath,
 	}
 }
 
