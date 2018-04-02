@@ -51,7 +51,6 @@ type SharedInfo struct {
 	MaxConnections        int
 	UseNodePort           bool
 	Limit                 *Limit
-	ExternalAuth          *ExternalAuth
 }
 
 type CORSConfig struct {
@@ -135,6 +134,7 @@ type Backend struct {
 	Name          string
 	NameGenerated bool
 	BasicAuth     *BasicAuth
+	ExternalAuth  *ExternalAuth
 
 	BackendRules []string
 	// Deprecated

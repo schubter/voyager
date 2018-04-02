@@ -14,6 +14,7 @@ import (
 	hpi "github.com/appscode/voyager/pkg/haproxy/api"
 	"github.com/appscode/voyager/pkg/haproxy/template"
 	_ "github.com/appscode/voyager/third_party/forked/cloudprovider/providers"
+	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	"github.com/tredoe/osutil/user/crypt"
 	"github.com/tredoe/osutil/user/crypt/sha512_crypt"
@@ -236,6 +237,9 @@ func (c *controller) rewriteTarget(path string, rewriteRules []string) []string 
 }
 
 func (c *controller) generateConfig() error {
+	glog.Info("=========================================================")
+	glog.Info(c.Ingress)
+	glog.Info("=========================================================")
 	if c.Ingress.SSLPassthrough() {
 		if err := c.convertRulesForSSLPassthrough(); err != nil {
 			return err
@@ -281,7 +285,6 @@ func (c *controller) generateConfig() error {
 		Limit: &hpi.Limit{
 			Connection: c.Ingress.LimitConnections(),
 		},
-		ExternalAuth: c.getExternalAuth(),
 	}
 
 	if val := c.Ingress.LimitRPM(); val > 0 {
@@ -786,6 +789,26 @@ func (c *controller) generateConfig() error {
 			}
 			srv.RemoveBackendAuth()
 		}
+
+		// parse external auth
+		if fr.Auth != nil && fr.Auth.OAuth != nil {
+			for i, host := range srv.Hosts {
+				if oauth, ok := fr.Auth.OAuth[host.Host]; ok {
+					for j, path := range host.Paths {
+						for _, authPaths := range oauth.Paths {
+							if strings.HasPrefix(authPaths, path.Path) {
+								srv.Hosts[i].Paths[j].Backend.ExternalAuth = &hpi.ExternalAuth{
+									AuthBackend:    oauth.AuthBackend,
+									AuthPath:       oauth.AuthPath,
+									AuthSigninPath: oauth.SigninPath,
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
 		td.HTTPService = append(td.HTTPService, srv)
 	}
 
@@ -811,22 +834,6 @@ func (c *controller) generateConfig() error {
 		c.logger.Debugf("Generated haproxy.cfg for Ingress %s/%s", c.Ingress.Namespace, c.Ingress.Name)
 	}
 	return nil
-}
-
-func (c *controller) getExternalAuth() *hpi.ExternalAuth {
-	authBackend := c.Ingress.AuthBackend()
-	authPath := c.Ingress.AuthPath()
-	authSigninPath := c.Ingress.AuthSigninPath()
-
-	if authBackend == "" || authPath == "" || authSigninPath == "" {
-		return nil
-	}
-
-	return &hpi.ExternalAuth{
-		AuthBackend:    authBackend,
-		AuthPath:       authPath,
-		AuthSigninPath: authSigninPath,
-	}
 }
 
 func getBasicAuthUsers(userLists map[string]hpi.UserList, sec *core.Secret) ([]string, error) {

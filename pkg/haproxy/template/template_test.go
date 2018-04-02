@@ -783,13 +783,7 @@ func TestHealthCheck(t *testing.T) {
 }
 
 func TestOauth(t *testing.T) {
-	si := &hpi.SharedInfo{
-		ExternalAuth: &hpi.ExternalAuth{
-			AuthBackend:    "auth-be",
-			AuthPath:       "/oauth2/auth",
-			AuthSigninPath: "/oauth2/start",
-		},
-	}
+	si := &hpi.SharedInfo{}
 	testParsedConfig := hpi.TemplateData{
 		SharedInfo: si,
 		HTTPService: []*hpi.HTTPService{
@@ -806,6 +800,21 @@ func TestOauth(t *testing.T) {
 								Path: "/app",
 								Backend: &hpi.Backend{
 									Name: "app",
+									Endpoints: []*hpi.Endpoint{
+										{Name: "aaa", IP: "10.244.2.1", Port: "2323"},
+										{Name: "bbb", IP: "10.244.2.1", Port: "2323"},
+									},
+									ExternalAuth: &hpi.ExternalAuth{
+										AuthBackend:    "auth-be",
+										AuthPath:       "/oauth2/auth",
+										AuthSigninPath: "/oauth2/start",
+									},
+								},
+							},
+							{
+								Path: "/app-2",
+								Backend: &hpi.Backend{
+									Name: "app-2",
 									Endpoints: []*hpi.Endpoint{
 										{Name: "aaa", IP: "10.244.2.1", Port: "2323"},
 										{Name: "bbb", IP: "10.244.2.1", Port: "2323"},
@@ -830,13 +839,6 @@ func TestOauth(t *testing.T) {
 	err := LoadTemplates(runtime.GOPath()+"/src/github.com/appscode/voyager/hack/docker/voyager/templates/*.cfg", "")
 	if assert.Nil(t, err) {
 		config, err := RenderConfig(testParsedConfig)
-		assert.Nil(t, err)
-		if testing.Verbose() {
-			fmt.Println(err, "\n", config)
-		}
-
-		testParsedConfig.SharedInfo.ExternalAuth = nil
-		config, err = RenderConfig(testParsedConfig)
 		assert.Nil(t, err)
 		if testing.Verbose() {
 			fmt.Println(err, "\n", config)
