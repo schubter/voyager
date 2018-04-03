@@ -99,8 +99,9 @@ func (svc HTTPService) sortKey() string {
 }
 
 type HTTPHost struct {
-	Host  string
-	Paths []*HTTPPath
+	Host         string
+	Paths        []*HTTPPath
+	ExternalAuth *ExternalAuth
 }
 
 type HTTPPath struct {
@@ -134,7 +135,6 @@ type Backend struct {
 	Name          string
 	NameGenerated bool
 	BasicAuth     *BasicAuth
-	ExternalAuth  *ExternalAuth
 
 	BackendRules []string
 	// Deprecated
@@ -149,9 +149,10 @@ type Backend struct {
 }
 
 type ExternalAuth struct {
-	AuthBackend    string
-	AuthPath       string
-	AuthSigninPath string
+	AuthBackend string
+	AuthPath    string
+	SigninPath  string
+	Paths       []string
 }
 
 func (be *Backend) canonicalize(hasDuplicate bool, host, port, path string) {

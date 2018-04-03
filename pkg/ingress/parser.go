@@ -794,16 +794,11 @@ func (c *controller) generateConfig() error {
 		if fr.Auth != nil && fr.Auth.OAuth != nil {
 			for i, host := range srv.Hosts {
 				if oauth, ok := fr.Auth.OAuth[host.Host]; ok {
-					for j, path := range host.Paths {
-						for _, authPaths := range oauth.Paths {
-							if strings.HasPrefix(authPaths, path.Path) {
-								srv.Hosts[i].Paths[j].Backend.ExternalAuth = &hpi.ExternalAuth{
-									AuthBackend:    oauth.AuthBackend,
-									AuthPath:       oauth.AuthPath,
-									AuthSigninPath: oauth.SigninPath,
-								}
-							}
-						}
+					srv.Hosts[i].ExternalAuth = &hpi.ExternalAuth{
+						AuthBackend: oauth.AuthBackend,
+						AuthPath:    oauth.AuthPath,
+						SigninPath:  oauth.SigninPath,
+						Paths:       oauth.Paths,
 					}
 				}
 			}
