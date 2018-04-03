@@ -241,11 +241,6 @@ const (
 
 	// https://github.com/kubernetes/ingress-nginx/blob/master/docs/examples/rewrite/README.md
 	RewriteTarget = EngressKey + "/" + "rewrite-target"
-
-	// https://github.com/kubernetes/ingress-nginx/tree/master/docs/examples/external-auth
-	AuthBackend    = EngressKey + "/" + "auth-backend"
-	AuthPath       = EngressKey + "/" + "auth-path"
-	AuthSigninPath = EngressKey + "/" + "auth-signin-path"
 )
 
 var (
@@ -297,9 +292,6 @@ func init() {
 	registerParser(PodAnnotations, meta.GetMap)
 	registerParser(DefaultsTimeOut, meta.GetMap)
 	registerParser(DefaultsOption, meta.GetMap)
-	registerParser(AuthBackend, meta.GetString)
-	registerParser(AuthPath, meta.GetString)
-	registerParser(AuthSigninPath, meta.GetString)
 }
 
 const (
@@ -691,19 +683,4 @@ func (r Ingress) LimitRPM() int {
 func (r Ingress) LimitConnections() int {
 	value, _ := get[LimitConnection](r.Annotations)
 	return value.(int)
-}
-
-func (r Ingress) AuthBackend() string {
-	value, _ := get[AuthBackend](r.Annotations)
-	return value.(string)
-}
-
-func (r Ingress) AuthPath() string {
-	value, _ := get[AuthPath](r.Annotations)
-	return value.(string)
-}
-
-func (r Ingress) AuthSigninPath() string {
-	value, _ := get[AuthSigninPath](r.Annotations)
-	return value.(string)
 }
