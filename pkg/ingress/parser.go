@@ -14,7 +14,6 @@ import (
 	hpi "github.com/appscode/voyager/pkg/haproxy/api"
 	"github.com/appscode/voyager/pkg/haproxy/template"
 	_ "github.com/appscode/voyager/third_party/forked/cloudprovider/providers"
-	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	"github.com/tredoe/osutil/user/crypt"
 	"github.com/tredoe/osutil/user/crypt/sha512_crypt"
@@ -237,9 +236,6 @@ func (c *controller) rewriteTarget(path string, rewriteRules []string) []string 
 }
 
 func (c *controller) generateConfig() error {
-	glog.Info("=========================================================")
-	glog.Info(c.Ingress)
-	glog.Info("=========================================================")
 	if c.Ingress.SSLPassthrough() {
 		if err := c.convertRulesForSSLPassthrough(); err != nil {
 			return err
@@ -791,14 +787,16 @@ func (c *controller) generateConfig() error {
 		}
 
 		// parse external auth
-		if fr.Auth != nil && fr.Auth.OAuth != nil {
-			for i, host := range srv.Hosts {
-				if oauth, ok := fr.Auth.OAuth[host.Host]; ok {
-					srv.Hosts[i].ExternalAuth = &hpi.ExternalAuth{
-						AuthBackend: oauth.AuthBackend,
-						AuthPath:    oauth.AuthPath,
-						SigninPath:  oauth.SigninPath,
-						Paths:       oauth.Paths,
+		if fr.Auth != nil && len(fr.Auth.OAuth) > 0 {
+			for i := range srv.Hosts {
+				for _, oauth := range fr.Auth.OAuth {
+					if oauth.Host == srv.Hosts[i].Host {
+						srv.Hosts[i].ExternalAuth = &hpi.ExternalAuth{
+							AuthBackend: oauth.AuthBackend,
+							AuthPath:    oauth.AuthPath,
+							SigninPath:  oauth.SigninPath,
+							Paths:       oauth.Paths,
+						}
 					}
 				}
 			}

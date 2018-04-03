@@ -65,11 +65,9 @@ func (in *AuthOption) DeepCopyInto(out *AuthOption) {
 	}
 	if in.OAuth != nil {
 		in, out := &in.OAuth, &out.OAuth
-		*out = make(map[string]OAuth, len(*in))
-		for key, val := range *in {
-			newVal := new(OAuth)
-			val.DeepCopyInto(newVal)
-			(*out)[key] = *newVal
+		*out = make([]OAuth, len(*in))
+		for i := range *in {
+			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
 	return

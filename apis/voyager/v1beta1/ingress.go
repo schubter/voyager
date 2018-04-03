@@ -305,12 +305,13 @@ type FrontendRule struct {
 }
 
 type AuthOption struct {
-	Basic *BasicAuth       `json:"basic,omitempty"`
-	TLS   *TLSAuth         `json:"tls,omitempty"`
-	OAuth map[string]OAuth `json:"oauth,omitempty"`
+	Basic *BasicAuth `json:"basic,omitempty"`
+	TLS   *TLSAuth   `json:"tls,omitempty"`
+	OAuth []OAuth    `json:"oauth,omitempty"`
 }
 
 type OAuth struct {
+	Host        string   `json:"host,omitempty"`
 	AuthBackend string   `json:"authBackend,omitempty"`
 	AuthPath    string   `json:"authPath,omitempty"`
 	SigninPath  string   `json:"signinPath,omitempty"`
