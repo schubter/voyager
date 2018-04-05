@@ -40,6 +40,10 @@ var (
 )
 
 func init() {
+	options.OperatorOptions.DockerRegistry = "diptadas"
+	options.OperatorOptions.HAProxyImageTag = "1.7.10-fix-nodeport"
+	options.OperatorOptions.ExporterImageTag = "fix-nodeport"
+
 	options.AddGoFlags(flag.CommandLine)
 	flag.StringVar(&options.KubeConfig, "kubeconfig", "", "Path to kubeconfig file with authorization information (the master location is set by the master flag).")
 	flag.StringVar(&options.KubeContext, "kube-context", "", "Name of kube context")

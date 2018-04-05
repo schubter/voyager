@@ -253,14 +253,14 @@ func (c *controller) generateConfig() error {
 
 	var td hpi.TemplateData
 
-	var nodePortSvc *core.Service
-	if c.Ingress.LBType() == api.LBTypeNodePort {
-		var err error
-		nodePortSvc, err = c.KubeClient.CoreV1().Services(c.Ingress.GetNamespace()).Get(c.Ingress.OffshootName(), metav1.GetOptions{})
-		if err != nil {
-			return err
-		}
-	}
+	//var nodePortSvc *core.Service
+	//if c.Ingress.LBType() == api.LBTypeNodePort {
+	//	var err error
+	//	nodePortSvc, err = c.KubeClient.CoreV1().Services(c.Ingress.GetNamespace()).Get(c.Ingress.OffshootName(), metav1.GetOptions{})
+	//	if err != nil {
+	//		return err
+	//	}
+	//}
 
 	si := &hpi.SharedInfo{
 		CORSConfig: hpi.CORSConfig{
@@ -436,13 +436,14 @@ func (c *controller) generateConfig() error {
 			}
 			info.OffloadSSL = offloadSSL
 
-			if c.Ingress.LBType() == api.LBTypeNodePort && nodePortSvc != nil {
-				for _, port := range nodePortSvc.Spec.Ports {
-					if port.Port == int32(binder.Port) {
-						info.NodePort = port.NodePort
-					}
-				}
-			}
+			//if c.Ingress.LBType() == api.LBTypeNodePort && nodePortSvc != nil {
+			//	for _, port := range nodePortSvc.Spec.Ports {
+			//		if port.Port == int32(binder.Port) {
+			//			info.NodePort = port.NodePort
+			//		}
+			//	}
+			//}
+
 			httpPaths := info.Hosts[rule.Host]
 			for pi, path := range rule.HTTP.Paths {
 				bk, err := c.serviceEndpoints(dnsResolvers, userLists, path.Backend.ServiceName, path.Backend.ServicePort, path.Backend.HostNames)
@@ -800,6 +801,27 @@ func (c *controller) generateConfig() error {
 	td.UserLists = make([]hpi.UserList, 0, len(userLists))
 	for k := range userLists {
 		td.UserLists = append(td.UserLists, userLists[k])
+	}
+
+	if c.Ingress.LBType() == api.LBTypeNodePort {
+		nodePortSvc, err := c.KubeClient.CoreV1().Services(c.Ingress.GetNamespace()).Get(c.Ingress.OffshootName(), metav1.GetOptions{})
+		if err != nil {
+			return err
+		}
+		portMapping := make(map[int32]int32)
+		for _, port := range nodePortSvc.Spec.Ports {
+			portMapping[port.Port] = port.NodePort
+		}
+		for _, svc := range td.HTTPService {
+			svc.NodePort = portMapping[int32(svc.Port)]
+			if svc.Port == 80 {
+				if svc.UseNodePort {
+					svc.RedirectToPort = portMapping[443]
+				} else {
+					svc.RedirectToPort = 443
+				}
+			}
+		}
 	}
 
 	c.logger.Debugf("Rendering haproxy.cfg for Ingress %s/%s using data: %s", c.Ingress.Namespace, c.Ingress.Name, td)
